@@ -36,26 +36,7 @@ local Window = Rayfield:CreateWindow({
 
 local Tab = Window:CreateTab("Main (Skill issue LOl)", "angry") -- Title, Image
 
-
 local datarequire = require(game:GetService("ReplicatedStorage").Packages.Knit)
-
-
-Tab:CreateToggle({
-    Name = "Inf Satmina",
-    CurrentValue = false,
-    Callback = function(Value)
-        InfSatmina = Value
-    end,
-})
-task.spawn(function()
-    local a = require(game:GetService("ReplicatedStorage").Packages.Knit)
-
-    while task.wait()  do
-        if InfSatmina then
-            a.SharedInterfaceStates.Stamina.Amount:set(math.huge)
-        end
-    end
-end)
 
 Tab:CreateToggle({
     Name = "Bring Ball(op)",
@@ -75,35 +56,30 @@ workspace.Junk.Football.ChildAdded:Connect(function(a)
 end)
 
 Tab:CreateToggle({
-    Name = "GoalAway",
+    Name = "Goal",
     CurrentValue = false,
     Callback = function(Value)
-        GoalAway = Value
+        Goal = Value
     end,
 })
 
-task.spawn(function()
-Workspace.Stadium.Teams.Away.Goal.Hitbox.ChildAdded:Connect(function(b)
-if GoalAway then
-    Workspace.Stadium.Teams.Away.Goal.Hitbox.CFrame = game.Players.LocalPlayer.Character.Hitbox.CFrame
+local a
+a = hookmetamethod(game,"__namecall",function (self,w,ball,...)
+    local otherarge = {...}
+    if Goal then
+    if getnamecallmethod() == "FireServer" then
+        if tostring(self) == "PerformAction" then
+            task.delay(0.2,function ()
+                local tween = game:GetService("TweenService"):Create(ball, TweenInfo.new(0.5, Enum.EasingStyle.Linear), { CFrame = CFrame.new(0.411929607, 7.32105732, 188.151672, -1, 0, 0, 0, 0.406715453, 0.913554907, 0, 0.913554907, -0.406715393) })
+    			tween:Play()
+    			task.delay(0.5,function ()
+    			    ball.CFrame = CFrame.new(0.411929607, 7.32105732, 188.151672, -1, 0, 0, 0, 0.406715453, 0.913554907, 0, 0.913554907, -0.406715393)
+                   end)
+               end)
+            end
         end
-    end)
-end)
-
-Tab:CreateToggle({
-    Name = "GoalHome",
-    CurrentValue = false,
-    Callback = function(Value)
-        GoalHome = Value
-    end,
-})
-
-task.spawn(function()
-   Workspace.Stadium.Teams.Home.Goal.Hitbox.ChildAdded:Connect(function(c)
-if GoalAway then
-    Workspace.Stadium.Teams.Home.Goal.Hitbox.CFrame = game.Players.LocalPlayer.Character.Hitbox.CFrame
-        end
-    end)
+    end
+    return a(self,w,ball,...)
 end)
 
 Tab:CreateSlider({
@@ -154,4 +130,23 @@ task.spawn(function()
         game.Players.LocalPlayer.Character.Hitbox.Size = Vector3.new(X,Y,Z)
         end
     end)
+end)
+
+local Tab = Window:CreateTab("LocalPlayer", "angry")
+
+Tab:CreateToggle({
+    Name = "Inf Satmina",
+    CurrentValue = false,
+    Callback = function(Value)
+        InfSatmina = Value
+    end,
+})
+task.spawn(function()
+    local a = require(game:GetService("ReplicatedStorage").Packages.Knit)
+
+    while task.wait()  do
+        if InfSatmina then
+            a.SharedInterfaceStates.Stamina.Amount:set(math.huge)
+        end
+    end
 end)
