@@ -58,17 +58,18 @@ Tab:CreateSlider({
 	Range = {0, 1000},
 	Increment = 1,
 	Suffix = "X",
-	CurrentValue = 10,
+	CurrentValue = 4.521,
 	Callback = function(Value)
 		X = Value
 	end,
 })
+
 Tab:CreateSlider({
 	Name = "Y",
 	Range = {0, 1000},
 	Increment = 1,
 	Suffix = "Y",
-	CurrentValue = 10,
+	CurrentValue = 5.73,
 	Callback = function(Value)
 		Y = Value
 	end,
@@ -79,7 +80,7 @@ Tab:CreateSlider({
 	Range = {0, 1000},
 	Increment = 1,
 	Suffix = "Z",
-	CurrentValue = 10,
+	CurrentValue = 2.398,
 	Callback = function(Value)
 		Z = Value
 	end,
@@ -123,29 +124,40 @@ task.spawn(function()
 	end
 end)
 
+local Speed = 16 
 Tab:CreateSlider({
-	Name = "Speed bypass",
-	Range = {0, 100},
-	Increment = 1,
-	Suffix = "Speed",
-	CurrentValue = 0,
-	Callback = function(Value)
-		Speed = Value
+    Name = "Speed Bypass",
+    Range = {0, 100},
+    Increment = 1,
+    Suffix = "Speed",
+    CurrentValue = 16,
+    Callback = function(Value)
+        Speed = Value
     end,
 })
+
+task.spawn(function()
+    while task.wait() do
+        local player = game.Players.LocalPlayer
+        if player and player.Character then
+            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+            if humanoid then
+                humanoid.WalkSpeed = Speed
+            end
+        end
+    end
+end)
 
 local mt = getrawmetatable(game)
 local backupnamecall = mt.__namecall
 setreadonly(mt, false)
-mt.__namecall = newcclosure(function(...)
-    local method = getnamecallmethod()
-    local args = {...}
-    if string.lower(method) == "kick" then
-        return nil
-    end
-    return backupnamecall(...)
-end)
-setreadonly(mt, true)
 
-local a = require(game:GetService("ReplicatedStorage").Packages.Knit)
-a.Defaults.Movement.WalkSpeed = Speed
+mt.__namecall = newcclosure(function(self, ...)
+    local method = getnamecallmethod()
+    if method == "Kick" and self == game.Players.LocalPlayer then
+        return nil 
+    end
+    return backupnamecall(self, ...)
+end)
+
+setreadonly(mt, true)
