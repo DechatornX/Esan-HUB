@@ -234,25 +234,61 @@ task.spawn(function()
 	end
 end)
 
-local Speed = 16 
-Tab:CreateSlider({
+local SpeedBypass = false 
+local DefaultSpeed = 16  
+local SprintSpeed = 32  
+local CurrentSpeed = DefaultSpeed
+
+Tab:CreateToggle({
     Name = "Speed Bypass",
-    Range = {0, 100},
-    Increment = 1,
-    Suffix = "Speed",
-    CurrentValue = 16,
+    CurrentValue = false,
     Callback = function(Value)
-        Speed = Value
+        SpeedBypass = Value
+        if not SpeedBypass then
+            local player = game.Players.LocalPlayer
+            if player and player.Character then
+                local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = DefaultSpeed 
+                end
+            end
+        end
     end,
 })
 
+Tab:CreateSlider({
+    Name = "Sprint Speed",
+    Range = {16, 100},
+    Increment = 1,
+    Suffix = "Speed",
+    CurrentValue = SprintSpeed,
+    Callback = function(Value)
+        SprintSpeed = Value
+    end,
+})
+
+local UIS = game:GetService("UserInputService")
+UIS.InputBegan:Connect(function(input, processed)
+    if not processed and input.KeyCode == Enum.KeyCode.LeftShift then
+        CurrentSpeed = SprintSpeed
+    end
+end)
+
+UIS.InputEnded:Connect(function(input)
+    if input.KeyCode == Enum.KeyCode.LeftShift then
+        CurrentSpeed = DefaultSpeed
+    end
+end)
+
 task.spawn(function()
     while task.wait() do
-        local player = game.Players.LocalPlayer
-        if player and player.Character then
-            local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-            if humanoid then
-                humanoid.WalkSpeed = Speed
+        if SpeedBypass then
+            local player = game.Players.LocalPlayer
+            if player and player.Character then
+                local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+                if humanoid then
+                    humanoid.WalkSpeed = CurrentSpeed
+                end
             end
         end
     end
