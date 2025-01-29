@@ -108,112 +108,36 @@ end)
 local Goal = false
 
 Tab:CreateToggle({
-    Name = "idk (but op beta)",
-    CurrentValue = false,
-    Callback = function(Value)
-        Goal = Value
-    end,
+	Name = "Ultrainstinct",
+	CurrentValue = false,
+	Callback = function(Value)
+		Goal = Value
+		task.spawn(function()
+			while Goal and task.wait(0.4) do
+				xpcall(function()
+					for i,v in pairs(workspace.Stadium.Teams:GetChildren()) do
+						if v.Name ~= game.Players.LocalPlayer.Team.Name and game:GetService("Players").LocalPlayer:GetAttribute("HasBall") then
+							repeat task.wait()
+								local args = {
+									[1] = "ShotActivated",
+									[2] = workspace:WaitForChild("Junk"):WaitForChild("Football"),
+									[3] = Vector3.new(13.054858207702637, 1.623178243637085, -131.73794555664062),
+									[4] = Vector3.new(5.412383079528809, 52.89044952392578, 68.7153549194336)
+								}
+
+								game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ActionService"):WaitForChild("RE"):WaitForChild("PerformAction"):FireServer(unpack(args))
+								workspace:WaitForChild("Junk"):WaitForChild("Football").CFrame = v.Goal.Hitbox.CFrame
+							until not game:GetService("Players").LocalPlayer:GetAttribute("HasBall")
+							task.wait(1.2)
+							return
+						end
+						workspace.Junk.Football.CFrame = game.Players.LocalPlayer.Character.Hitbox.CFrame
+					end
+				end,print)
+			end
+		end)
+	end,
 })
-
-local player = game.Players.LocalPlayer
-local function getCharacter()
-    return player.Character or player.CharacterAdded:Wait()
-end
-
-local function getPlayerTeam()
-    if player.Team then
-        return player.Team.Name 
-    end
-    return nil
-end
-
-local function ShootActivated()
-    local character = getCharacter()
-    if character and character:FindFirstChild("Ball") and character.Ball:FindFirstChild("Texture") then
-        return true 
-    end
-    return false 
-end
-
-local function PerformShotAction()
-    local character = getCharacter()
-    if not ShootActivated() then return end
-
-    local teamName = getPlayerTeam()
-    local targetPosition = nil
-
-    if teamName == "Home" then
-        targetPosition = Vector3.new(0.411929607, 7.32105732, 188.151672)
-    elseif teamName == "Away" then
-        targetPosition = Vector3.new(-0.411929607, 7.32105732, -188.151672)
-    end
-
-    if targetPosition then
-        local args = {
-            [1] = "ShotActivated",
-            [2] = workspace:WaitForChild("Junk"):WaitForChild("Football"),
-            [3] = targetPosition,
-            [4] = character.RightLowerLeg.Position
-        }
-
-        game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ActionService"):WaitForChild("RE"):WaitForChild("PerformAction"):FireServer(unpack(args))
-    end
-end
-
-local function updatePlayerHitbox()
-    local character = getCharacter()
-    local hitbox = character:FindFirstChild("Hitbox")
-    if hitbox then
-        hitbox.Size = Vector3.new(10000, 10000, 10000)
-    end
-end
-
-local function updateOpponentHitbox()
-    local teamName = getPlayerTeam()
-    local opponentTeam = nil
-
-    if teamName == "Away" then
-        opponentTeam = workspace.Stadium.Teams.Home
-    elseif teamName == "Home" then
-        opponentTeam = workspace.Stadium.Teams.Away
-    end
-
-    if opponentTeam then
-        local opponentHitbox = opponentTeam.Goal:FindFirstChild("Hitbox")
-        local opponentCollision = opponentTeam.Goal:FindFirstChild("Collision") and opponentTeam.Goal.Collision:FindFirstChild("Center")
-
-        if opponentHitbox then
-            opponentHitbox.Size = Vector3.new(10000, 10000, 10000)
-        end
-        if opponentCollision then
-            local character = getCharacter()
-            local ball = character:FindFirstChild("Ball")
-            if ball then
-                ball.CFrame = opponentCollision.CFrame
-            end
-        end
-    end
-end
-
-local football = workspace.Junk:FindFirstChild("Football")
-if football then
-    football.Size = Vector3.new(0, -100, 0)
-end
-
-task.spawn(function()
-    while task.wait() do
-        if Goal then
-            local character = getCharacter()
-            local football = workspace.Junk:FindFirstChild("Football")
-            if character and football then
-                character.RightLowerLeg.CFrame = football.CFrame
-            end
-            updatePlayerHitbox()
-            updateOpponentHitbox()
-            PerformShotAction()
-        end
-    end
-end)
 
 local Tab = Window:CreateTab("LocalPlayer", "angry")
 
@@ -240,58 +164,58 @@ local SprintSpeed = 32
 local CurrentSpeed = DefaultSpeed
 
 Tab:CreateToggle({
-    Name = "Speed Bypass",
-    CurrentValue = false,
-    Callback = function(Value)
-        SpeedBypass = Value
-        if not SpeedBypass then
-            local player = game.Players.LocalPlayer
-            if player and player.Character then
-                local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid.WalkSpeed = DefaultSpeed 
-                end
-            end
-        end
-    end,
+	Name = "Speed Bypass",
+	CurrentValue = false,
+	Callback = function(Value)
+		SpeedBypass = Value
+		if not SpeedBypass then
+			local player = game.Players.LocalPlayer
+			if player and player.Character then
+				local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+				if humanoid then
+					humanoid.WalkSpeed = DefaultSpeed 
+				end
+			end
+		end
+	end,
 })
 
 Tab:CreateSlider({
-    Name = "Sprint Speed",
-    Range = {16, 100},
-    Increment = 1,
-    Suffix = "Speed",
-    CurrentValue = SprintSpeed,
-    Callback = function(Value)
-        SprintSpeed = Value
-    end,
+	Name = "Sprint Speed",
+	Range = {16, 100},
+	Increment = 1,
+	Suffix = "Speed",
+	CurrentValue = SprintSpeed,
+	Callback = function(Value)
+		SprintSpeed = Value
+	end,
 })
 
 local UIS = game:GetService("UserInputService")
 UIS.InputBegan:Connect(function(input, processed)
-    if not processed and input.KeyCode == Enum.KeyCode.LeftShift then
-        CurrentSpeed = SprintSpeed
-    end
+	if not processed and input.KeyCode == Enum.KeyCode.LeftShift then
+		CurrentSpeed = SprintSpeed
+	end
 end)
 
 UIS.InputEnded:Connect(function(input)
-    if input.KeyCode == Enum.KeyCode.LeftShift then
-        CurrentSpeed = DefaultSpeed
-    end
+	if input.KeyCode == Enum.KeyCode.LeftShift then
+		CurrentSpeed = DefaultSpeed
+	end
 end)
 
 task.spawn(function()
-    while task.wait() do
-        if SpeedBypass then
-            local player = game.Players.LocalPlayer
-            if player and player.Character then
-                local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
-                if humanoid then
-                    humanoid.WalkSpeed = CurrentSpeed
-                end
-            end
-        end
-    end
+	while task.wait() do
+		if SpeedBypass then
+			local player = game.Players.LocalPlayer
+			if player and player.Character then
+				local humanoid = player.Character:FindFirstChildOfClass("Humanoid")
+				if humanoid then
+					humanoid.WalkSpeed = CurrentSpeed
+				end
+			end
+		end
+	end
 end)
 
 local mt = getrawmetatable(game)
@@ -299,11 +223,11 @@ local backupnamecall = mt.__namecall
 setreadonly(mt, false)
 
 mt.__namecall = newcclosure(function(self, ...)
-    local method = getnamecallmethod()
-    if method == "Kick" and self == game.Players.LocalPlayer then
-        return nil 
-    end
-    return backupnamecall(self, ...)
+	local method = getnamecallmethod()
+	if method == "Kick" and self == game.Players.LocalPlayer then
+		return nil 
+	end
+	return backupnamecall(self, ...)
 end)
 
 setreadonly(mt, true)
@@ -315,36 +239,36 @@ local SelectedTeam = "Home"
 local SelectedPosition = "CF"
 
 local TeamDropdown = Tab:CreateDropdown({
-   Name = "Choose Team",
-   Options = Teams,
-   CurrentOption = {SelectedTeam},
-   MultipleOptions = false,
-   Callback = function(Options)
-       SelectedTeam = Options[1] 
-   end,
+	Name = "Choose Team",
+	Options = Teams,
+	CurrentOption = {SelectedTeam},
+	MultipleOptions = false,
+	Callback = function(Options)
+		SelectedTeam = Options[1] 
+	end,
 })
 
 local PositionDropdown = Tab:CreateDropdown({
-   Name = "Pick a Positons",
-   Options = Positions,
-   CurrentOption = {SelectedPosition},
-   MultipleOptions = false,
-   Flag = "PositionDropdown",
-   Callback = function(Options)
-       SelectedPosition = Options[1] 
-   end,
+	Name = "Pick a Positons",
+	Options = Positions,
+	CurrentOption = {SelectedPosition},
+	MultipleOptions = false,
+	Flag = "PositionDropdown",
+	Callback = function(Options)
+		SelectedPosition = Options[1] 
+	end,
 })
 
 Tab:CreateButton({
-    Name = "Join",
-    Callback = function()
-        local args = {
-            [1] = {
-                ["Team"] = game:GetService("Teams"):WaitForChild(SelectedTeam),
-                ["TeamPosition"] = SelectedPosition
-            }
-        }
+	Name = "Join",
+	Callback = function()
+		local args = {
+			[1] = {
+				["Team"] = game:GetService("Teams"):WaitForChild(SelectedTeam),
+				["TeamPosition"] = SelectedPosition
+			}
+		}
 
-        game:GetService("ReplicatedStorage"):WaitForChild("__GamemodeComm"):WaitForChild("RE"):WaitForChild("_RequestJoin"):FireServer(unpack(args))
-    end,
+		game:GetService("ReplicatedStorage"):WaitForChild("__GamemodeComm"):WaitForChild("RE"):WaitForChild("_RequestJoin"):FireServer(unpack(args))
+	end,
 })
