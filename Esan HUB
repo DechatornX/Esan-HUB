@@ -105,6 +105,116 @@ task.spawn(function()
 	end
 end)
 
+local Goal = false
+
+Tab:CreateToggle({
+    Name = "idk (beta)",
+    CurrentValue = false,
+    Callback = function(Value)
+        Goal = Value
+    end,
+})
+
+local player = game.Players.LocalPlayer
+local function getCharacter()
+    return player.Character or player.CharacterAdded:Wait()
+end
+
+local function getPlayerTeam()
+    if player.Team then
+        return player.Team.Name 
+    end
+    return nil
+end
+
+local function ShootActivated()
+    local character = getCharacter()
+    if character and character:FindFirstChild("Ball") and character.Ball:FindFirstChild("Texture") then
+        return true 
+    end
+    return false 
+end
+
+local function PerformShotAction()
+    local character = getCharacter()
+    if not ShootActivated() then return end
+
+    local teamName = getPlayerTeam()
+    local targetPosition = nil
+
+    if teamName == "Home" then
+        targetPosition = Vector3.new(0.411929607, 7.32105732, 188.151672)
+    elseif teamName == "Away" then
+        targetPosition = Vector3.new(-0.411929607, 7.32105732, -188.151672)
+    end
+
+    if targetPosition then
+        local args = {
+            [1] = "ShotActivated",
+            [2] = workspace:WaitForChild("Junk"):WaitForChild("Football"),
+            [3] = targetPosition,
+            [4] = character.RightLowerLeg.Position
+        }
+
+        game:GetService("ReplicatedStorage"):WaitForChild("Packages"):WaitForChild("Knit"):WaitForChild("Services"):WaitForChild("ActionService"):WaitForChild("RE"):WaitForChild("PerformAction"):FireServer(unpack(args))
+    end
+end
+
+local function updatePlayerHitbox()
+    local character = getCharacter()
+    local hitbox = character:FindFirstChild("Hitbox")
+    if hitbox then
+        hitbox.Size = Vector3.new(10000, 10000, 10000)
+    end
+end
+
+local function updateOpponentHitbox()
+    local teamName = getPlayerTeam()
+    local opponentTeam = nil
+
+    if teamName == "Away" then
+        opponentTeam = workspace.Stadium.Teams.Home
+    elseif teamName == "Home" then
+        opponentTeam = workspace.Stadium.Teams.Away
+    end
+
+    if opponentTeam then
+        local opponentHitbox = opponentTeam.Goal:FindFirstChild("Hitbox")
+        local opponentCollision = opponentTeam.Goal:FindFirstChild("Collision") and opponentTeam.Goal.Collision:FindFirstChild("Center")
+
+        if opponentHitbox then
+            opponentHitbox.Size = Vector3.new(10000, 10000, 10000)
+        end
+        if opponentCollision then
+            local character = getCharacter()
+            local ball = character:FindFirstChild("Ball")
+            if ball then
+                ball.CFrame = opponentCollision.CFrame
+            end
+        end
+    end
+end
+
+local football = workspace.Junk:FindFirstChild("Football")
+if football then
+    football.Size = Vector3.new(0, -100, 0)
+end
+
+task.spawn(function()
+    while task.wait() do
+        if Goal then
+            local character = getCharacter()
+            local football = workspace.Junk:FindFirstChild("Football")
+            if character and football then
+                character.RightLowerLeg.CFrame = football.CFrame
+            end
+            updatePlayerHitbox()
+            updateOpponentHitbox()
+            PerformShotAction()
+        end
+    end
+end)
+
 local Tab = Window:CreateTab("LocalPlayer", "angry")
 
 Tab:CreateToggle({
@@ -161,3 +271,4 @@ mt.__namecall = newcclosure(function(self, ...)
 end)
 
 setreadonly(mt, true)
+
