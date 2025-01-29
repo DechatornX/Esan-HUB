@@ -39,7 +39,7 @@ local Tab = Window:CreateTab("Main (Skill issue LOl)", "angry") -- Title, Image
 local datarequire = require(game:GetService("ReplicatedStorage").Packages.Knit)
 
 Tab:CreateToggle({
-	Name = "Bring Ball(op)",
+	Name = "Bring Ball (op)",
 	CurrentValue = false,
 	Callback = function(Value)
 		LoopBall = Value
@@ -108,7 +108,7 @@ end)
 local Goal = false
 
 Tab:CreateToggle({
-    Name = "idk (beta)",
+    Name = "idk (but op beta)",
     CurrentValue = false,
     Callback = function(Value)
         Goal = Value
