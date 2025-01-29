@@ -272,3 +272,43 @@ end)
 
 setreadonly(mt, true)
 
+local Teams = {"Home", "Away"}
+local Positions = {"CF", "LF", "RF", "CM", "LB", "RB", "GK"}
+
+local SelectedTeam = "Home"
+local SelectedPosition = "CF"
+
+local TeamDropdown = Tab:CreateDropdown({
+   Name = "Choose Team",
+   Options = Teams,
+   CurrentOption = {SelectedTeam},
+   MultipleOptions = false,
+   Callback = function(Options)
+       SelectedTeam = Options[1] 
+   end,
+})
+
+local PositionDropdown = Tab:CreateDropdown({
+   Name = "Pick a Positons",
+   Options = Positions,
+   CurrentOption = {SelectedPosition},
+   MultipleOptions = false,
+   Flag = "PositionDropdown",
+   Callback = function(Options)
+       SelectedPosition = Options[1] 
+   end,
+})
+
+Tab:CreateButton({
+    Name = "Join",
+    Callback = function()
+        local args = {
+            [1] = {
+                ["Team"] = game:GetService("Teams"):WaitForChild(SelectedTeam),
+                ["TeamPosition"] = SelectedPosition
+            }
+        }
+
+        game:GetService("ReplicatedStorage"):WaitForChild("__GamemodeComm"):WaitForChild("RE"):WaitForChild("_RequestJoin"):FireServer(unpack(args))
+    end,
+})
